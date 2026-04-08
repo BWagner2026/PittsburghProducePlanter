@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pittsburgh Produce Planters</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',system-ui,sans-serif;color:#1a2e1a;background:#ffffff;overflow-x:hidden}
+  html{scroll-behavior:smooth}
+  a{text-decoration:none;color:inherit}
+
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.reveal.visible{opacity:1;transform:translateY(0)}
+  .reveal-delay-1{transition-delay:.1s}.reveal-delay-2{transition-delay:.2s}.reveal-delay-3{transition-delay:.3s}.reveal-delay-4{transition-delay:.35s}
+
+  .mesh-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+  .mesh-bg .orb{position:absolute;border-radius:50%;filter:blur(140px);animation:float 20s ease-in-out infinite}
+  .orb-1{width:600px;height:600px;background:#bbf7d0;opacity:.35;top:-10%;left:-10%;animation-delay:0s}
+  .orb-2{width:500px;height:500px;background:#86efac;opacity:.2;top:40%;right:-15%;animation-delay:-7s}
+  .orb-3{width:400px;height:400px;background:#d9f99d;opacity:.25;bottom:-5%;left:30%;animation-delay:-14s}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-40px) scale(1.1)}66%{transform:translate(-40px,30px) scale(.95)}}
+
+  /* Nav - full width top bar */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;transition:all .3s;background:rgba(255,255,255,.5);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,0,0,.04)}
+  nav.scrolled{background:rgba(255,255,255,.92);border-bottom-color:rgba(0,0,0,.08);box-shadow:0 1px 24px rgba(0,0,0,.04)}
+  .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;cursor:pointer}
+  .logo-circle{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#4ade80);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(22,163,74,.25)}
+  .logo span{font-weight:800;font-size:16px;color:#16a34a;letter-spacing:.5px}
+  .nav-links{display:flex;gap:4px;align-items:center}
+  .nav-links a{padding:8px 16px;border-radius:24px;font-size:13px;font-weight:500;color:rgba(0,0,0,.45);transition:all .25s;cursor:pointer}
+  .nav-links a:hover{color:#1a2e1a;background:rgba(0,0,0,.04)}
+  .nav-links a.active{color:#16a34a;background:rgba(22,163,74,.08)}
+  .nav-links .subscribe-link{background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;font-weight:600;padding:8px 20px;border-radius:100px;margin-left:8px}
+  .nav-links .subscribe-link:hover{box-shadow:0 4px 16px rgba(22,163,74,.25);transform:translateY(-1px);background:linear-gradient(135deg,#15803d,#16a34a);color:#fff}
+  .nav-links .subscribe-link.active{background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff}
+  .hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px}
+  .hamburger svg{stroke:#16a34a}
+
+  /* Hero */
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:140px 24px 100px;position:relative;z-index:1}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(22,163,74,.06);border:1px solid rgba(22,163,74,.12);border-radius:100px;padding:8px 20px 8px 12px;margin-bottom:32px;font-size:13px;color:#16a34a;font-weight:500}
+  .hero-badge .pulse{width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 8px rgba(22,163,74,.4);animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+  .hero h1{font-size:clamp(44px,7vw,84px);font-weight:900;line-height:1;color:#0a1a0a;max-width:900px;margin:0 0 24px;letter-spacing:-3px}
+  .hero h1 em{font-style:normal;background:linear-gradient(135deg,#16a34a,#22c55e,#65a30d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hero p{font-size:19px;color:rgba(0,0,0,.45);max-width:520px;line-height:1.7;margin:0 0 48px}
+  .hero-btns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+  .btn-glow{position:relative;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border:none;border-radius:100px;padding:16px 36px;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s;font-family:inherit}
+  .btn-glow::before{content:'';position:absolute;inset:-2px;border-radius:100px;background:linear-gradient(135deg,#16a34a,#4ade80);z-index:-1;filter:blur(20px);opacity:.3;transition:opacity .3s}
+  .btn-glow:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(22,163,74,.25)}.btn-glow:hover::before{opacity:.5}
+  .btn-ghost{background:transparent;color:#1a2e1a;border:1.5px solid rgba(0,0,0,.15);border-radius:100px;padding:15px 32px;font-size:16px;font-weight:500;cursor:pointer;transition:all .3s;font-family:inherit}
+  .btn-ghost:hover{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.25);transform:translateY(-2px)}
+  .scroll-hint{margin-top:72px;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:.3}
+  .scroll-hint span{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#16a34a}
+  .scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,#16a34a,transparent);animation:scrollLine 2s ease-in-out infinite}
+  @keyframes scrollLine{0%{opacity:0;transform:scaleY(0);transform-origin:top}50%{opacity:1;transform:scaleY(1)}100%{opacity:0;transform:scaleY(0);transform-origin:bottom}}
+
+  .particles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .particle{position:absolute;width:3px;height:3px;background:#16a34a;border-radius:50%;opacity:.08;animation:rise linear infinite}
+  @keyframes rise{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:.08}90%{opacity:.08}100%{transform:translateY(-20vh) scale(1);opacity:0}}
+
+  /* Stats */
+  .stats{position:relative;z-index:1;padding:0 24px}
+  .stats-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(22,163,74,.1);border-radius:24px;overflow:hidden;border:1px solid rgba(22,163,74,.1)}
+  .stat{text-align:center;padding:40px 20px;background:rgba(255,255,255,.85);backdrop-filter:blur(12px)}
+  .stat-num{font-size:42px;font-weight:900;letter-spacing:-2px;background:linear-gradient(135deg,#16a34a,#65a30d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .stat-label{font-size:13px;color:rgba(0,0,0,.4);margin-top:6px;line-height:1.4}
+
+  .section{padding:120px 24px;position:relative;z-index:1}
+  .section-inner{max-width:1100px;margin:0 auto}
+  .section-label{font-size:12px;font-weight:600;color:#16a34a;text-transform:uppercase;letter-spacing:4px;margin-bottom:16px}
+  .section-title{font-size:clamp(32px,4vw,52px);font-weight:900;color:#0a1a0a;margin:0 0 16px;letter-spacing:-2px;line-height:1.1}
+  .section-desc{font-size:17px;color:rgba(0,0,0,.4);max-width:520px;line-height:1.7}
+  .centered{text-align:center}.centered .section-desc{margin:0 auto 56px}
+
+  .glow-line{height:1px;background:linear-gradient(90deg,transparent,rgba(22,163,74,.15),transparent);margin:0 auto;max-width:800px}
+
+  /* Mission */
+  .mission-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+  .mission-text p{font-size:17px;line-height:1.8;color:rgba(0,0,0,.45);margin:0 0 16px}
+  .mission-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .mission-card{background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:28px;transition:all .4s;cursor:default;backdrop-filter:blur(8px)}
+  .mission-card:hover{background:#fff;border-color:rgba(22,163,74,.15);transform:translateY(-4px);box-shadow:0 16px 48px rgba(22,163,74,.08)}
+  .mission-card .icon{width:44px;height:44px;border-radius:12px;background:rgba(22,163,74,.07);display:flex;align-items:center;justify-content:center;color:#16a34a;margin-bottom:14px;transition:all .4s}
+  .mission-card:hover .icon{background:rgba(22,163,74,.12);box-shadow:0 0 20px rgba(22,163,74,.1)}
+  .mission-card h4{font-weight:700;font-size:15px;color:#0a1a0a;margin-bottom:6px}
+  .mission-card p{font-size:13px;color:rgba(0,0,0,.4);line-height:1.6;margin:0}
+
+  /* Process */
+  .process-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px}
+  .process-card{background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.06);border-radius:24px;padding:40px 28px;text-align:center;transition:all .4s;position:relative;overflow:hidden;backdrop-filter:blur(8px)}
+  .process-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#16a34a,transparent);opacity:0;transition:opacity .4s}
+  .process-card:hover{background:#fff;border-color:rgba(22,163,74,.12);transform:translateY(-6px);box-shadow:0 16px 48px rgba(22,163,74,.08)}.process-card:hover::before{opacity:1}
+  .process-num{font-size:64px;font-weight:900;background:linear-gradient(180deg,rgba(22,163,74,.1),transparent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:8px}
+  .process-icon{width:56px;height:56px;border-radius:16px;background:rgba(22,163,74,.06);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:#16a34a;transition:all .4s}
+  .process-card:hover .process-icon{background:rgba(22,163,74,.1);box-shadow:0 0 24px rgba(22,163,74,.1)}
+  .process-card h3{font-size:17px;font-weight:700;color:#0a1a0a;margin:0 0 10px}
+  .process-card p{font-size:14px;color:rgba(0,0,0,.4);line-height:1.6;margin:0}
+
+  /* Impact */
+  .impact-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:56px}
+  .impact-card{background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.06);border-radius:24px;padding:36px;transition:all .4s;position:relative;overflow:hidden;backdrop-filter:blur(8px)}
+  .impact-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to top,rgba(22,163,74,.03),transparent);opacity:0;transition:opacity .4s}
+  .impact-card:hover{background:#fff;border-color:rgba(22,163,74,.12);transform:translateY(-4px);box-shadow:0 16px 48px rgba(22,163,74,.08)}.impact-card:hover::after{opacity:1}
+  .impact-icon{width:44px;height:44px;border-radius:14px;background:rgba(22,163,74,.06);display:flex;align-items:center;justify-content:center;color:#16a34a;margin-bottom:20px}
+  .impact-card h3{font-size:22px;font-weight:800;color:#0a1a0a;margin:0 0 10px}
+  .impact-card p{font-size:14px;color:rgba(0,0,0,.4);line-height:1.7;margin:0;position:relative;z-index:1}
+
+  /* Community */
+  .community-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .community-card{background:rgba(255,255,255,.6);border:1px solid rgba(0,0,0,.06);border-radius:24px;padding:36px;transition:all .4s;backdrop-filter:blur(8px)}
+  .community-card:hover{background:#fff;border-color:rgba(22,163,74,.12);transform:translateY(-4px);box-shadow:0 16px 48px rgba(22,163,74,.08)}
+  .community-card .accent{height:3px;width:48px;border-radius:2px;margin-bottom:24px}
+  .c1 .accent{background:linear-gradient(90deg,#16a34a,#4ade80)}
+  .c2 .accent{background:linear-gradient(90deg,#22c55e,#86efac)}
+  .c3 .accent{background:linear-gradient(90deg,#65a30d,#a3e635)}
+  .community-card h3{font-size:19px;font-weight:700;color:#0a1a0a;margin:0 0 12px}
+  .community-card p{font-size:14px;color:rgba(0,0,0,.4);line-height:1.7;margin:0}
+
+  /* Subscribe section */
+  .subscribe-section{background:linear-gradient(135deg,rgba(22,163,74,.04),rgba(101,163,13,.04));border:1px solid rgba(22,163,74,.1);border-radius:24px;max-width:700px;margin:0 auto;padding:56px 48px;text-align:center}
+  .subscribe-section .price{font-size:56px;font-weight:900;letter-spacing:-2px;background:linear-gradient(135deg,#16a34a,#65a30d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:16px 0 4px}
+  .subscribe-section .price-sub{font-size:15px;color:rgba(0,0,0,.4);margin-bottom:24px}
+  .subscribe-section ul{list-style:none;text-align:left;max-width:360px;margin:0 auto 32px;display:flex;flex-direction:column;gap:12px}
+  .subscribe-section ul li{display:flex;align-items:center;gap:12px;font-size:15px;color:rgba(0,0,0,.6)}
+  .subscribe-section ul li .check{width:24px;height:24px;border-radius:50%;background:rgba(22,163,74,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#16a34a}
+
+  /* CTA / Forms */
+  .cta-box{max-width:900px;margin:0 auto;text-align:center;border-radius:32px;padding:80px 48px;position:relative;overflow:hidden;background:linear-gradient(135deg,#16a34a,#0f6f32)}
+  .cta-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.12),transparent 70%);pointer-events:none}
+  .cta-box::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
+  .cta-box h2{font-size:clamp(28px,4vw,44px);font-weight:900;color:#fff;margin:0 0 16px;letter-spacing:-1.5px;position:relative}
+  .cta-box>p{font-size:17px;color:rgba(255,255,255,.7);max-width:460px;margin:0 auto 40px;line-height:1.7;position:relative}
+  .cta-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:36px;position:relative;flex-wrap:wrap}
+  .cta-tab{border-radius:100px;padding:10px 24px;font-size:14px;font-weight:600;cursor:pointer;transition:all .3s;font-family:inherit;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:rgba(255,255,255,.7)}
+  .cta-tab.active{background:#fff;color:#16a34a;border-color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.1)}
+  .cta-tab:hover:not(.active){background:rgba(255,255,255,.15);color:#fff}
+
+  .form-panel{display:none;position:relative;max-width:420px;margin:0 auto}
+  .form-panel.active{display:block}
+  .form-panel label{display:block;text-align:left;font-size:13px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:6px;margin-top:16px}
+  .form-panel label:first-child{margin-top:0}
+  .form-panel input,.form-panel textarea,.form-panel select{width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:15px;font-family:inherit;outline:none;transition:all .3s;backdrop-filter:blur(8px)}
+  .form-panel input::placeholder,.form-panel textarea::placeholder{color:rgba(255,255,255,.35)}
+  .form-panel input:focus,.form-panel textarea:focus,.form-panel select:focus{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.15)}
+  .form-panel textarea{resize:vertical;min-height:80px}
+  .form-panel select option{background:#16a34a;color:#fff}
+  .form-submit{margin-top:24px;width:100%;padding:14px;border-radius:100px;border:none;background:#fff;color:#16a34a;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .3s}
+  .form-submit:hover{box-shadow:0 8px 32px rgba(0,0,0,.15);transform:translateY(-2px)}
+
+  /* Success message */
+  .form-success{display:none;text-align:center;padding:24px;position:relative}
+  .form-success.show{display:block}
+  .form-success .checkmark{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+  .form-success h3{color:#fff;font-size:20px;font-weight:700;margin-bottom:8px}
+  .form-success p{color:rgba(255,255,255,.7);font-size:15px}
+
+  /* Footer */
+  footer{position:relative;z-index:1;padding:64px 24px 32px;border-top:1px solid rgba(0,0,0,.05)}
+  .footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+  .footer-logo{display:flex;align-items:center;gap:10px}
+  .footer-circle{width:28px;height:28px;border-radius:50%;background:rgba(22,163,74,.08);display:flex;align-items:center;justify-content:center}
+  .footer-logo span{font-weight:700;font-size:14px;color:rgba(0,0,0,.5)}
+  .footer-mid{font-size:13px;color:rgba(0,0,0,.3)}
+  .footer-copy{font-size:12px;color:rgba(0,0,0,.2)}
+
+  @media(max-width:900px){
+    .nav-links{display:none}
+    .nav-links.open{display:flex;flex-direction:column;position:absolute;top:64px;left:0;right:0;background:rgba(255,255,255,.97);backdrop-filter:blur(24px);padding:16px 24px;border-bottom:1px solid rgba(0,0,0,.06);box-shadow:0 8px 32px rgba(0,0,0,.06)}
+    .hamburger{display:block}
+    .mission-grid,.process-grid,.impact-grid,.community-grid,.stats-inner{grid-template-columns:1fr 1fr}
+    .cta-box{padding:56px 24px}
+    nav{padding:0 16px}
+  }
+  @media(max-width:600px){
+    .process-grid,.impact-grid,.community-grid{grid-template-columns:1fr}
+    .stats-inner{grid-template-columns:1fr 1fr}
+    .mission-grid{grid-template-columns:1fr}
+    .mission-cards{grid-template-columns:1fr 1fr}
+    .subscribe-section{padding:40px 24px}
+  }
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-sprout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 13.52 9H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+  <symbol id="i-recycle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"/><path d="M11 19h8.203a1.83 1.83 0 0 0 1.556-.89 1.784 1.784 0 0 0 0-1.775l-1.226-2.12"/><path d="m14 16-3 3 3 3"/><path d="M8.293 13.596 7.196 9.5 3.1 10.598"/><path d="m9.344 5.811 1.093-1.892A1.83 1.83 0 0 1 12.012 3a1.784 1.784 0 0 1 1.576.887l3.958 6.862"/><path d="m17.532 12.932 1.8 3.114-3.114 1.8"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+  <symbol id="i-basket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+</svg>
+
+<div class="mesh-bg"><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a class="logo" href="#home">
+      <div class="logo-circle"><svg width="18" height="18" style="color:#fff"><use href="#i-sprout"/></svg></div>
+      <span>PPP</span>
+    </a>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+      <svg width="22" height="22"><use href="#i-menu"/></svg>
+    </button>
+    <div class="nav-links">
+      <a href="#mission">Mission</a>
+      <a href="#how-it-works">Process</a>
+      <a href="#impact">Impact</a>
+      <a href="#community">Community</a>
+      <a href="#get-involved">Get Involved</a>
+      <a href="#subscribe" class="subscribe-link">Subscribe — $5/mo</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="particles" id="particles"></div>
+  <div class="hero-badge reveal"><div class="pulse"></div>Serving Pittsburgh's Communities</div>
+  <h1 class="reveal reveal-delay-1">From Food Waste<br>to <em>Fresh Produce</em></h1>
+  <p class="reveal reveal-delay-2">Pittsburgh Produce Planters transforms organic waste into thriving community gardens — tackling food waste and food insecurity in one cycle.</p>
+  <div class="hero-btns reveal reveal-delay-3">
+    <a href="#get-involved" class="btn-glow">Get Involved</a>
+    <a href="#how-it-works" class="btn-ghost">See How It Works</a>
+  </div>
+  <div class="scroll-hint reveal reveal-delay-4">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats reveal">
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-num" data-target="89000">0</div><div class="stat-label">Tons of food waste in Pittsburgh yearly</div></div>
+    <div class="stat"><div class="stat-num" data-custom="1 in 5">1 in 5</div><div class="stat-label">Pittsburgh residents face food insecurity</div></div>
+    <div class="stat"><div class="stat-num" data-target="27" data-suffix="%">0</div><div class="stat-label">Of food purchases become waste in Allegheny County</div></div>
+    <div class="stat"><div class="stat-num" data-target="60" data-suffix="M">0</div><div class="stat-label">Tons of food wasted in America annually</div></div>
+  </div>
+</div>
+
+<div class="glow-line" style="margin-top:120px"></div>
+
+<!-- MISSION -->
+<section class="section" id="mission">
+  <div class="section-inner">
+    <div class="mission-grid">
+      <div class="mission-text">
+        <div class="section-label reveal">Our Mission</div>
+        <h2 class="section-title reveal reveal-delay-1">Closing the Loop<br>on Food Waste</h2>
+        <p class="reveal reveal-delay-2">PPP is a social enterprise designed to be money-neutral, creating a sustainable cycle that turns suburban food waste into compost, and that compost into community gardens in Pittsburgh's food deserts.</p>
+        <p class="reveal reveal-delay-3">Using a Cradle to Cradle approach, nothing goes to waste — excess soil is sold to local farmers, and surplus produce reaches families through farmers' markets.</p>
+      </div>
+      <div class="mission-cards">
+        <div class="mission-card reveal"><div class="icon"><svg width="24" height="24"><use href="#i-recycle"/></svg></div><h4>Zero Waste</h4><p>Cradle to Cradle practices ensure nothing is lost</p></div>
+        <div class="mission-card reveal reveal-delay-1"><div class="icon"><svg width="24" height="24"><use href="#i-heart"/></svg></div><h4>Food Access</h4><p>Fresh produce for food desert communities</p></div>
+        <div class="mission-card reveal reveal-delay-2"><div class="icon"><svg width="24" height="24"><use href="#i-leaf"/></svg></div><h4>Less Emissions</h4><p>Diverting waste from landfills cuts greenhouse gases</p></div>
+        <div class="mission-card reveal reveal-delay-3"><div class="icon"><svg width="24" height="24"><use href="#i-users"/></svg></div><h4>Community</h4><p>Gardens that foster growth and well-being</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how-it-works">
+  <div class="section-inner centered">
+    <div class="section-label reveal">The Process</div>
+    <h2 class="section-title reveal reveal-delay-1">How It Works</h2>
+    <p class="section-desc reveal reveal-delay-2">A four-step cycle that turns waste into community wealth.</p>
+    <div class="process-grid">
+      <div class="process-card reveal"><div class="process-num">01</div><div class="process-icon"><svg width="28" height="28"><use href="#i-truck"/></svg></div><h3>Collect</h3><p>We pick up organic food waste from suburban households and drop-off sites across Allegheny County.</p></div>
+      <div class="process-card reveal reveal-delay-1"><div class="process-num">02</div><div class="process-icon"><svg width="28" height="28"><use href="#i-recycle"/></svg></div><h3>Compost</h3><p>Volunteers process waste at a centralized facility, transforming scraps into nutrient-rich soil.</p></div>
+      <div class="process-card reveal reveal-delay-2"><div class="process-num">03</div><div class="process-icon"><svg width="28" height="28"><use href="#i-sprout"/></svg></div><h3>Grow</h3><p>Soil is used to build and maintain community gardens in Pittsburgh's food deserts.</p></div>
+      <div class="process-card reveal reveal-delay-3"><div class="process-num">04</div><div class="process-icon"><svg width="28" height="28"><use href="#i-basket"/></svg></div><h3>Sustain</h3><p>Excess soil is sold to farms. Surplus produce goes to farmers' markets. The cycle continues.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- IMPACT -->
+<section class="section" id="impact">
+  <div class="section-inner centered">
+    <div class="section-label reveal">Our Impact</div>
+    <h2 class="section-title reveal reveal-delay-1">Why Pittsburgh<br>Needs PPP</h2>
+    <p class="section-desc reveal reveal-delay-2">Food deserts affect real neighborhoods. Our gardens bring fresh food, community connection, and environmental relief.</p>
+    <div class="impact-grid">
+      <div class="impact-card reveal"><div class="impact-icon"><svg width="20" height="20"><use href="#i-pin"/></svg></div><h3>Homewood</h3><p>Among the highest food insecurity rates in Pittsburgh. PPP plans to establish its first community gardens here.</p></div>
+      <div class="impact-card reveal reveal-delay-1"><div class="impact-icon"><svg width="20" height="20"><use href="#i-pin"/></svg></div><h3>Hilltop</h3><p>Residents face limited access to fresh food. Community gardens can bring sustainable nutrition to the neighborhood.</p></div>
+      <div class="impact-card reveal reveal-delay-2"><div class="impact-icon"><svg width="20" height="20"><use href="#i-pin"/></svg></div><h3>Glen Hazel & Beyond</h3><p>As PPP grows, additional food desert neighborhoods will receive gardens, extending the cycle of renewal.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- COMMUNITY -->
+<section class="section" id="community">
+  <div class="section-inner centered">
+    <div class="section-label reveal">Community</div>
+    <h2 class="section-title reveal reveal-delay-1">Everyone Benefits</h2>
+    <p class="section-desc reveal reveal-delay-2">PPP creates value for every stakeholder — from suburban donors to food desert residents to local farmers.</p>
+    <div class="community-grid">
+      <div class="community-card c1 reveal"><div class="accent"></div><h3>Suburban Residents</h3><p>Get food waste picked up conveniently. No more guilt — your scraps become something productive.</p></div>
+      <div class="community-card c2 reveal reveal-delay-1"><div class="accent"></div><h3>Food Desert Residents</h3><p>Gain access to free community gardens with fresh produce — tomatoes, squash, cucumbers, and more.</p></div>
+      <div class="community-card c3 reveal reveal-delay-2"><div class="accent"></div><h3>Local Farmers</h3><p>Purchase quality compost soil to strengthen crops and support a sustainable local food ecosystem.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- SUBSCRIBE -->
+<section class="section" id="subscribe">
+  <div class="section-inner centered">
+    <div class="section-label reveal">Pickup Service</div>
+    <h2 class="section-title reveal reveal-delay-1">Subscribe to PPP</h2>
+    <p class="section-desc reveal reveal-delay-2">Affordable curbside pickup for your food scraps. Cancel anytime.</p>
+    <div class="subscribe-section reveal reveal-delay-3" style="margin-top:48px">
+      <div class="price">$5<span style="font-size:24px;opacity:.6">/mo</span></div>
+      <div class="price-sub">Residential food waste pickup service</div>
+      <ul>
+        <li><div class="check"><svg width="14" height="14"><use href="#i-check"/></svg></div>Weekly curbside food scrap pickup</li>
+        <li><div class="check"><svg width="14" height="14"><use href="#i-check"/></svg></div>PPP-provided compost collection bin</li>
+        <li><div class="check"><svg width="14" height="14"><use href="#i-check"/></svg></div>Access to community drop-off hubs</li>
+        <li><div class="check"><svg width="14" height="14"><use href="#i-check"/></svg></div>100% of scraps diverted from landfills</li>
+        <li><div class="check"><svg width="14" height="14"><use href="#i-check"/></svg></div>Directly funds community gardens</li>
+      </ul>
+      <a href="#get-involved" class="btn-glow" style="display:inline-block;text-align:center">Sign Up Now</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA / CONTACT FORMS -->
+<section class="section" id="get-involved">
+  <div class="cta-box reveal">
+    <h2>Join the Movement</h2>
+    <p>Whether you want to donate food scraps, volunteer, or partner with us — fill out a quick form and we'll be in touch.</p>
+
+    <div class="cta-tabs">
+      <button class="cta-tab active" onclick="showForm('donate')">Donate Scraps</button>
+      <button class="cta-tab" onclick="showForm('volunteer')">Volunteer</button>
+      <button class="cta-tab" onclick="showForm('partner')">Partner With Us</button>
+    </div>
+
+    <!-- Donate Form -->
+    <div class="form-panel active" id="form-donate">
+      <label>Full Name</label>
+      <input type="text" placeholder="Jane Smith">
+      <label>Email</label>
+      <input type="email" placeholder="jane@email.com">
+      <label>Phone (optional)</label>
+      <input type="tel" placeholder="(412) 555-0123">
+      <label>Neighborhood / ZIP Code</label>
+      <input type="text" placeholder="e.g. Squirrel Hill, 15217">
+      <label>Preferred Pickup or Drop-off?</label>
+      <select><option>Curbside Pickup</option><option>Drop-off Hub</option><option>Either Works</option></select>
+      <button class="form-submit" onclick="submitForm(this)">Sign Up for Pickup</button>
+    </div>
+
+    <!-- Volunteer Form -->
+    <div class="form-panel" id="form-volunteer">
+      <label>Full Name</label>
+      <input type="text" placeholder="John Doe">
+      <label>Email</label>
+      <input type="email" placeholder="john@email.com">
+      <label>Phone (optional)</label>
+      <input type="tel" placeholder="(412) 555-0456">
+      <label>I'm interested in helping with...</label>
+      <select><option>Composting facility</option><option>Community garden maintenance</option><option>Food scrap collection</option><option>Events &amp; outreach</option><option>Anything — surprise me!</option></select>
+      <label>Availability</label>
+      <input type="text" placeholder="e.g. Weekends, Tue/Thu evenings">
+      <button class="form-submit" onclick="submitForm(this)">Sign Up to Volunteer</button>
+    </div>
+
+    <!-- Partner Form -->
+    <div class="form-panel" id="form-partner">
+      <label>Your Name</label>
+      <input type="text" placeholder="Sarah Johnson">
+      <label>Organization / Farm Name</label>
+      <input type="text" placeholder="e.g. Johnson Family Farm">
+      <label>Email</label>
+      <input type="email" placeholder="sarah@farm.com">
+      <label>Phone</label>
+      <input type="tel" placeholder="(412) 555-0789">
+      <label>How would you like to partner?</label>
+      <select><option>Purchase compost soil</option><option>Sell produce at farmers' markets</option><option>Provide garden materials</option><option>Sponsor a community garden</option><option>Other</option></select>
+      <label>Tell us more</label>
+      <textarea placeholder="A few words about your organization and how you'd like to work with PPP..."></textarea>
+      <button class="form-submit" onclick="submitForm(this)">Submit Partnership Inquiry</button>
+    </div>
+
+    <!-- Success (shared) -->
+    <div class="form-success" id="form-success">
+      <div class="checkmark"><svg width="28" height="28" style="color:#fff"><use href="#i-check"/></svg></div>
+      <h3>You're In!</h3>
+      <p>Thanks for joining Pittsburgh Produce Planters. We'll reach out to you soon.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <div class="footer-circle"><svg width="14" height="14" style="color:#16a34a"><use href="#i-sprout"/></svg></div>
+      <span>Pittsburgh Produce Planters</span>
+    </div>
+    <div class="footer-mid">Serving Allegheny County — Homewood · Hilltop · Glen Hazel · West Oakland</div>
+    <div class="footer-copy">© 2026 PPP</div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Nav
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) t.scrollIntoView({ behavior: 'smooth' });
+      document.querySelector('.nav-links').classList.remove('open');
+    });
+  });
+
+  // Active nav
+  const sects = ['home','mission','how-it-works','impact','community','subscribe','get-involved'];
+  window.addEventListener('scroll', () => {
+    let cur = 'home';
+    sects.forEach(id => { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top <= 200) cur = id; });
+    document.querySelectorAll('.nav-links a:not(.subscribe-link)').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+  });
+
+  // Counter
+  let counted = false;
+  const statsObs = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !counted) {
+      counted = true;
+      document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+        const target = +el.dataset.target, suffix = el.dataset.suffix || '', dur = 2000, start = performance.now();
+        const step = (now) => {
+          const p = Math.min((now - start) / dur, 1), ease = 1 - Math.pow(1 - p, 4);
+          el.textContent = Math.floor(target * ease).toLocaleString() + suffix;
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      });
+    }
+  }, { threshold: 0.3 });
+  const statsEl = document.querySelector('.stats-inner');
+  if (statsEl) statsObs.observe(statsEl);
+
+  // Particles
+  const pc = document.getElementById('particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (8 + Math.random() * 14) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    p.style.width = p.style.height = (2 + Math.random() * 3) + 'px';
+    pc.appendChild(p);
+  }
+
+  // CTA form tabs
+  function showForm(type) {
+    document.querySelectorAll('.cta-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.form-panel').forEach(f => f.classList.remove('active'));
+    document.getElementById('form-success').classList.remove('show');
+    event.target.classList.add('active');
+    document.getElementById('form-' + type).classList.add('active');
+  }
+
+  // Form submit
+  function submitForm(btn) {
+    const panel = btn.closest('.form-panel');
+    const inputs = panel.querySelectorAll('input, textarea, select');
+    let valid = true;
+    inputs.forEach(inp => {
+      if (inp.type !== 'tel' && inp.tagName !== 'SELECT' && !inp.value.trim()) {
+        inp.style.borderColor = 'rgba(255,100,100,.6)';
+        valid = false;
+      } else {
+        inp.style.borderColor = '';
+      }
+    });
+    if (!valid) return;
+    // Hide all forms, show success
+    document.querySelectorAll('.form-panel').forEach(f => f.classList.remove('active'));
+    document.getElementById('form-success').classList.add('show');
+  }
+</script>
+</body>
+</html>
